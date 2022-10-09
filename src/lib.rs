@@ -190,9 +190,13 @@ impl<T: IMVisibility + HintPurpose, D: ReceiveSurroundingText> Submitter<T, D> {
     pub fn submit_text(&mut self, text: &str) {
         info!("Submitter is trying to submit the text: {}", text);
         if let Some(im) = &mut self.im_service {
-            if im.commit_string(text.to_string()).is_ok() && im.commit().is_ok() {
+            if im.commit_string(text.to_string()).is_err() {
+                info!("Submitter had an error when calling commit_string");
+            } else if im.commit().is_err() {
+                info!("Submitter had an error when calling commit");
+            } else {
                 return;
-            };
+            }
         }
 
         if let Some(virtual_keyboard) = &mut self.virtual_keyboard {
@@ -201,8 +205,10 @@ impl<T: IMVisibility + HintPurpose, D: ReceiveSurroundingText> Submitter<T, D> {
                 .lock()
                 .unwrap()
                 .send_unicode_str(text)
-                .is_ok()
+                .is_err()
             {
+                info!("Submitter had an error when calling send_unicode_str");
+            } else {
                 return;
             }
         }
