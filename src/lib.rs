@@ -15,9 +15,11 @@ use zwp_input_method_service::{HintPurpose, IMService, IMVisibility, ReceiveSurr
 pub use vk_service::{KeyMotion, VKService};
 
 // Modules
+mod connectors;
 mod keymap;
 pub mod vk_service;
 mod wayland;
+pub use connectors::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 /// The different modifiers that are available
@@ -185,7 +187,7 @@ impl<T: IMVisibility + HintPurpose, D: ReceiveSurroundingText> Submitter<T, D> {
     /// Try to submit the text
     /// If the input_method protocol is available, use it to submit the string as a whole.
     /// If it is not available, submit each character individually via virtual_keyboard protocol (This is error prone and should only be used as a last resort).
-    fn submit_text(&mut self, text: &str) {
+    pub fn submit_text(&mut self, text: &str) {
         info!("Submitter is trying to submit the text: {}", text);
         if let Some(im) = &mut self.im_service {
             if im.commit_string(text.to_string()).is_ok() && im.commit().is_ok() {
